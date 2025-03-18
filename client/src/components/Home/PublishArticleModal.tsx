@@ -4,30 +4,38 @@ import Button from "../../shared/Button";
 import { ImagePlus, X } from "lucide-react";
 import { RootState } from "../../redux/Store";
 import { useSelector } from "react-redux";
-import {  publishArticle } from "../../api/ArticleApi";
+import { editArticle, publishArticle } from "../../api/ArticleApi";
 import axios from "axios";
 import { message } from "antd";
 
 interface PublishArticleModalProps {
   onClose: () => void;
-  fetchArticle:()=>void
+  fetchArticle: () => void;
+  article?: {
+    id: string;
+    title: string;
+    category: string;
+    content: string;
+    tags: string;
+    coverImage: string;
+  };
 }
-
 const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
   onClose,
-  fetchArticle
+  fetchArticle,
+  article,
 }) => {
   const user = useSelector((state: RootState) => state.user.user);
 
   const [articleData, setArticleData] = useState({
-    title: "",
-    category: "",
-    content: "",
-    tags: "",
+    title: article?.title || "",
+    category: article?.category || "",
+    content: article?.content || "",
+    tags: Array.isArray(article?.tags) ? article.tags.join(", ") : article?.tags || "",
   });
 
-  const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState("");
+  const [coverImage, setCoverImage] = useState<File | null | string>(article?.coverImage || null);
+  const [previewUrl, setPreviewUrl] = useState(article?.coverImage || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // State for individual field errors
@@ -138,27 +146,36 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
       const articleDatas = {
         ...articleData,
         coverImage: imageUrl,
-      };
 
-      const res = await publishArticle(articleDatas, user?.id);
-      if (res.status === 201) {
-        message.success("Article published sucessfully!!");
-        fetchArticle()
-        onClose();
+      };
+      
+
+      if (article) {
+        // Edit existing article
+        console.log(articleDatas,"res efit------------------------------------------");
+        const res = await editArticle(articleDatas,article.id)
+        
+        if (res.status === 200)
+          message.success("Article updated successfully!");
+      } else {
+        const res = await publishArticle(articleDatas, user?.id);
+        if (res.status === 201)
+          message.success("Article published successfully!");
       }
+      fetchArticle();
+      onClose();
       setIsSubmitting(false);
     } catch (error) {
       console.log(error);
       setIsSubmitting(false);
     }
   };
-
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Modal Header */}
         <div className="bg-indigo-600 px-6 py-4 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-white">Publish New Article</h2>
+          <h2 className="text-xl font-bold text-white">{article ? "Edit Article" : "Publish New Article"}</h2>
           <button
             onClick={onClose}
             className="text-white hover:text-indigo-200"
@@ -300,13 +317,14 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
               >
                 Cancel
               </button>
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={isSubmitting}
-                isLoading={isSubmitting}
-              >
-                {isSubmitting ? "Publishing..." : "Publish Article"}
+              <Button type="submit" variant="primary" isLoading={isSubmitting}>
+                {isSubmitting
+                  ? article
+                    ? "Updating..."
+                    : "Publishing..."
+                  : article
+                  ? "Update Article"
+                  : "Publish Article"}
               </Button>
             </div>
           </form>

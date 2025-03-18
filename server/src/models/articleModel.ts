@@ -23,10 +23,10 @@ const articleSchema = new mongoose.Schema(
     },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     dislikes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    isBlocked: {
-      type: Boolean,
-      default: false,
-    },
+    isArchieved: {
+        type: Boolean,
+        default: false,
+      },
   },
   { timestamps: true }
 );

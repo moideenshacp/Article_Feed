@@ -87,6 +87,7 @@ export const signIn = async (req: Request, res: Response) => {
         dob: user.dob,
         preferences: user.preferences,
         image: user.image,
+        blockedArticles:user.blockedArticles
       },
     });
   } catch (error) {

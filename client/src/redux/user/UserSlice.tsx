@@ -8,7 +8,8 @@ interface User {
   phone: string
   preferences: string[];
   dob?: string;
-  image:string
+  image:string,
+  blockedArticles?:string[]
 }
 
 // Define the initial state type
@@ -41,12 +42,24 @@ const userSlice = createSlice({
           state.user = { ...state.user, ...action.payload };
         }
       },
+      updateBlock(state, action: PayloadAction<{ articleId: string, isBlocked: boolean }>) {
+        if (state.user) {
+          if (action.payload.isBlocked) {
+            //  Add article to blockedArticles if blocked
+            state.user.blockedArticles = [...(state.user.blockedArticles || []), action.payload.articleId];
+          } else {
+            //  Remove article from blockedArticles if unblocked
+            state.user.blockedArticles = state.user.blockedArticles?.filter(id => id !== action.payload.articleId) || [];
+          }
+        }
+      }
   },
 });
 
 export const {
   login,
   logout,
-  updateUser
+  updateUser,
+  updateBlock
 } = userSlice.actions;
 export default userSlice.reducer;

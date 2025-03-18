@@ -6,6 +6,7 @@ import userModel from "../models/userModel";
 export const publicArtilce = async (req: Request, res: Response) => {
   try {
     const { error, value } = articleValidationSchema.validate(req.body.articleDatas, { abortEarly: false });
+console.log("amkelaeeeeeeeeeeeeeee",req.body.articleDatas);
 
     if (error) {
         console.log(error);
@@ -44,47 +45,46 @@ export const publicArtilce = async (req: Request, res: Response) => {
 
 export const getArticlesByPreference = async (req: Request, res: Response) => {
     try {
-      console.log("Fetching articles based on user preference...");
-  
-      const { userId } = req.query;
-  
-      const user = await userModel.findById(userId);
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: "User not found",
+        console.log("Fetching articles based on user preference.");
+
+        const { userId, publisher } = req.query;
+
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        let articles;
+
+        if (publisher) {  
+            articles = await Article.find({ postedBy: userId})
+                .populate("postedBy", "firstName lastName email image");
+        } else if (!user.preferences || user.preferences.length === 0) {
+            articles = await Article.find({ isArchieved:false })
+                .populate("postedBy", "firstName lastName email image ");
+        } else {
+            articles = await Article.find({
+                category: { $in: user.preferences },
+                isArchieved:false
+            }).populate("postedBy", "firstName lastName email image ");
+        }
+        return res.status(200).json({
+            success: true,
+            message: "Articles fetched successfully",
+            articles,
         });
-      }
-  
-      console.log("User preferences count:", user.preferences?.length || 0);
-  
-      let articles;
-  
-      if (!user.preferences || user.preferences.length === 0) {
-        console.log("No preferences found, returning all articles...");
-        articles = await Article.find().populate("postedBy", "firstName lastName email image");
-      } else {
-        articles = await Article.find({
-          category: { $in: user.preferences },
-        }).populate("postedBy", "firstName lastName email image");
-      }
-  
-      console.log("Articles fetched:", articles.length);
-  
-      return res.status(200).json({
-        success: true,
-        message: "Articles fetched successfully",
-        articles,
-      });
     } catch (error) {
-      console.error("Error fetching articles:", error);
-      res.status(500).json({
-        success: false,
-        message: "Internal server error",
-      });
+        console.error("Error fetching articles:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
     }
-  };
-  
+};
+
 
   export const likeArticle = async (req: Request, res: Response) => {
     try {
@@ -151,5 +151,116 @@ export const getArticlesByPreference = async (req: Request, res: Response) => {
     } catch (error) {
       console.error("Error disliking article:", error);
       res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  };
+
+  export const blockArticle = async (req: Request, res: Response) => {
+    try {
+      const { articleId, userId } = req.body;
+  
+      // Find the user
+      const user = await userModel.findById(userId);
+      if (!user) {
+        return res.status(404).json({ success: false, message: "User not found" });
+      }
+      console.log("userindo",user);
+      
+  
+      // Check if the article is already blocked
+      const isBlocked = user.blockedArticles.includes(articleId);
+  
+      if (isBlocked) {
+        // Unblock the article by removing it from the array
+        user.blockedArticles = user.blockedArticles.filter(id => id.toString() !== articleId);
+      } else {
+        // Block the article by adding it to the array
+        user.blockedArticles.push(articleId);
+      }
+  
+      await user.save();
+  
+      return res.status(200).json({
+        success: true,
+        message: isBlocked ? "Article unblocked successfully" : "Article blocked successfully",
+        isBlocked: !isBlocked,
+      });
+  
+    } catch (error) {
+      console.error("Error blocking article:", error);
+      return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  };
+  
+
+  export const archieveArticle = async (req:Request, res:Response) => {
+    try {
+      const { articleId } = req.body;
+  
+      // Toggle the archieve state
+      const article = await Article.findById(articleId);
+      if (!article) {
+        return res.status(404).json({ success: false, message: "Article not found" });
+      }
+  
+      article.isArchieved = !article.isArchieved;
+      await article.save();
+  
+      return res.status(200).json({
+        success: true,
+        message: article.isArchieved ? "Article archieved successfully" : "Article unarchieved successfully",
+        isArchieved: article.isArchieved,
+      });
+    } catch (error) {
+      console.error("Error archieved article:", error);
+      return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  };
+
+  export const updateArticle = async (req: Request, res: Response) => {
+    try {
+        console.log("vinuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",req.body.articleDatas);
+        
+      const { articleId } = req.body;
+      const { error, value } = articleValidationSchema.validate(req.body.articleDatas, { abortEarly: false });
+  
+      if (error) {
+        console.log(error,"validtion");
+        
+        return res.status(400).json({
+          success: false,
+          message: "Validation errors",
+          errors: error.details.map((err) => err.message),
+        });
+      }
+  
+      const article = await Article.findById(articleId);
+  
+      if (!article) {
+        return res.status(404).json({
+          success: false,
+          message: "Article not found",
+        });
+      }
+console.log(value,"valuessssssssssssssssssssssssssssss")
+  
+      article.title = value.title;
+      article.category = value.category;
+      article.content = value.content;
+      article.coverImage = value.coverImage;
+      article.tags = value.tags;
+  
+      const updatedArticle = await article.save();
+  
+      return res.status(200).json({
+        success: true,
+        message: "Article updated successfully",
+        article: updatedArticle,
+      });
+    } catch (error) {
+      console.error("Error updating article:", error);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
     }
   };

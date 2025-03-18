@@ -1,25 +1,42 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Ban, ThumbsDown, ThumbsUp, X } from "lucide-react";
 import React, { useState } from "react";
-import { disLikeArticle, likeArticle } from "../../api/ArticleApi";
+import {
+  archieveArticle,
+  blockArticle,
+  disLikeArticle,
+  likeArticle,
+} from "../../api/ArticleApi";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../redux/Store";
+import { updateBlock } from "../../redux/user/UserSlice";
 
-const ArticleModal: React.FC<any> = ({ article, onClose ,userId,fetchArticle}) => {
-
-  const [isBlocked, setIsBlocked] = useState(false);
+const ArticleModal: React.FC<any> = ({
+  article,
+  onClose,
+  userId,
+  fetchArticle,
+}) => {
+  const user = useSelector((state: RootState) => state.user.user);
+  const dispatch = useDispatch();
+  const [isBlocked, setIsBlocked] = useState(article.isBlocked);
   const [isLiked, setIsLiked] = useState(article.likes.includes(userId));
-  const [isDisliked, setIsDisliked] = useState(article.dislikes.includes(userId));
+  const [isArchived, setIsArchived] = useState(article.isArchieved);
+  const [isDisliked, setIsDisliked] = useState(
+    article.dislikes.includes(userId)
+  );
   const [likeCount, setLikeCount] = useState(article.likes.length);
   const [dislikeCount, setDislikeCount] = useState(article.dislikes.length);
 
   const handleLike = async () => {
     try {
-      const response = await likeArticle(article.id,userId)
+      const response = await likeArticle(article.id, userId);
 
       setLikeCount(response.data.likes);
       setDislikeCount(response.data.dislikes);
       setIsLiked(!isLiked);
       if (isDisliked) setIsDisliked(false);
-      fetchArticle()
+      fetchArticle();
     } catch (error) {
       console.error("Error liking article:", error);
     }
@@ -27,37 +44,47 @@ const ArticleModal: React.FC<any> = ({ article, onClose ,userId,fetchArticle}) =
 
   const handleDislike = async () => {
     try {
-      const response = await disLikeArticle(article.id,userId)
+      const response = await disLikeArticle(article.id, userId);
 
       setLikeCount(response.data.likes);
       setDislikeCount(response.data.dislikes);
       setIsDisliked(!isDisliked);
-      fetchArticle()
+      fetchArticle();
       if (isLiked) setIsLiked(false);
     } catch (error) {
       console.error("Error disliking article:", error);
     }
   };
-console.log(likeCount,dislikeCount,"counts------------------");
+  console.log(likeCount, dislikeCount, "counts------------------");
+  const handleBlock = async () => {
+    try {
+      console.log("int");
 
+      const response = await blockArticle(article.id, user?.id);
+      const isBlocked = response.data.isBlocked;
 
-  const handleBlock = (e: any) => {
-    e.stopPropagation();
-    setIsBlocked(!isBlocked);
-    if (!isBlocked) {
-      // In a real implementation, you would handle blocking logic here
-      setTimeout(() => {
-        onClose();
-      }, 1000);
+      setIsBlocked(isBlocked);
+      fetchArticle();
+      dispatch(updateBlock({ articleId: article.id, isBlocked }));
+
+    } catch (error) {
+      console.error("Error blocking article:", error);
+    }
+  };
+
+  const handleArchive = async () => {
+    try {
+      const response = await archieveArticle(article.id);
+      setIsArchived(response.data.isArchieved);
+      fetchArticle();
+    } catch (error) {
+      console.error("Error archiving/unarchiving article:", error);
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
-      <div
-        className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col relative"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col relative">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -155,15 +182,27 @@ console.log(likeCount,dislikeCount,"counts------------------");
               </button>
             </div>
 
-            <button
-              onClick={handleBlock}
-              className={`flex items-center space-x-1 ${
-                isBlocked ? "text-red-600" : "text-gray-600"
-              }`}
-            >
-              <Ban className="h-6 w-6" />
-              <span>{isBlocked ? "Blocking..." : "Block"}</span>
-            </button>
+            {user?.email === article.publisherEmail ? (
+              <button
+                onClick={handleArchive}
+                className={`flex items-center space-x-1 ${
+                  isArchived ? "text-gray-600" : "text-blue-600"
+                }`}
+              >
+                <Ban className="h-6 w-6" />
+                <span>{isArchived ? "Unarchive" : "Archive"}</span>
+              </button>
+            ) : (
+              <button
+                onClick={handleBlock}
+                className={`flex items-center space-x-1 ${
+                  isBlocked ? "text-green-600" : "text-red-600"
+                }`}
+              >
+                <Ban className="h-6 w-6" />
+                <span>{isBlocked ? "Unblock" : "Block"}</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -1,33 +1,55 @@
-import UserDropdown from "../dropdown/UserDropdown"
+import { useLocation, Link } from "react-router-dom";
+import UserDropdown from "../dropdown/UserDropdown";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 
 const Header = () => {
-    const user = useSelector((state: RootState) => state.user.user);
+  const user = useSelector((state: RootState) => state.user.user);
+  const location = useLocation();
 
   return (
     <div>
-         {/* Header */}
+      {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
               <h1 className="text-2xl font-bold text-gray-900">ArticleFeed</h1>
               <div className="hidden md:flex ml-10 space-x-8">
-                <a href="#" className="text-indigo-600 font-medium">
+                <Link
+                  to="/home"
+                  className={`font-medium ${
+                    location.pathname === "/home"
+                      ? "text-indigo-600 font-semibold"
+                      : "text-gray-500 hover:text-gray-900"
+                  }`}
+                >
                   Dashboard
-                </a>
-                <a
-                  href="#"
-                  className="text-gray-500 hover:text-gray-900 font-medium"
+                </Link>
+
+                <Link
+                  to="/my-article"
+                  className={`font-medium ${
+                    location.pathname === "/my-article"
+                      ? "text-indigo-600 font-semibold"
+                      : "text-gray-500 hover:text-gray-900"
+                  }`}
                 >
                   My Articles
-                </a>
+                </Link>
+                <Link
+                  to="/blocked-article"
+                  className={`font-medium ${
+                    location.pathname === "/blocked-article"
+                      ? "text-indigo-600 font-semibold"
+                      : "text-gray-500 hover:text-gray-900"
+                  }`}
+                >
+                  Blocked Articles
+                </Link>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              
-
               <div className="flex items-center">
                 <img
                   src={
@@ -47,7 +69,7 @@ const Header = () => {
         </div>
       </header>
     </div>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;

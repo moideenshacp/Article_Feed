@@ -9,7 +9,7 @@ import PublishArticleModal from "./PublishArticleModal";
 import { getArticles } from "../../api/ArticleApi";
 import { Empty } from "antd";
 
-const Home = () => {
+const BlockedArticle = () => {
   const [activeArticle, setActiveArticle] = useState(null);
   const [articles, setArticles] = useState<any>([]);
   const [showModal, setShowModal] = useState(false);
@@ -18,10 +18,8 @@ const Home = () => {
 
   const fetchArticle = async () => {
     const res = await getArticles(user?.id);
-    console.log(res.data.articles, "ogggggggggggggggg");
-
     const formattedArticles = res.data.articles
-    .filter((article: any) => !user?.blockedArticles?.includes(article._id)) // Remove blocked articles
+    .filter((article: any) => user?.blockedArticles?.includes(article._id)) //  blocked articles
     .map((article: any) => ({
       id: article._id,
       title: article.title,
@@ -36,8 +34,7 @@ const Home = () => {
       dislikes: article.dislikes,
       isBlocked: user?.blockedArticles?.includes(article._id), //  Track if it's blocked
       isArchieved: article.isArchieved,
-      publisherEmail: article.postedBy.email,
-      content:article.content
+      publisherEmail: article.postedBy.email
     }));
   
   setArticles(formattedArticles);
@@ -47,7 +44,6 @@ const Home = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
-  console.log(articles);
 
   const handleArticleClick = (article: any) => {
     setActiveArticle(article);
@@ -68,20 +64,13 @@ const Home = () => {
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
-              Welcome back, {user?.firstName || "John"}!
+            Blocked Articles!
             </h2>
             <p className="text-gray-600 mt-1">
-              Here are some articles based on your preferences
+            These are the articles you've blocked.
             </p>
           </div>
 
-          {/* Publish Article Button */}
-          <button
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition"
-            onClick={() => setIsModalOpen(true)}
-          >
-            Publish Article +
-          </button>
         </div>
 
         {/* Articles Grid */}
@@ -96,7 +85,7 @@ const Home = () => {
             ))
           ) : (
             <div className="flex justify-center ml-96 items-center w-full h-[56vh]">
-              <Empty description="No articles match your preferences. Try exploring other categories!" />
+              <Empty description="You haven't blocked any articles yet." />
             </div>
           )}
         </div>
@@ -121,4 +110,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default BlockedArticle;

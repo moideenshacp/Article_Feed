@@ -9,6 +9,8 @@ import { PrivateRoute } from "./routes/PrivateRoute";
 import { useSelector } from "react-redux";
 import { RootState } from "./redux/Store";
 import Profile from "./components/profile/Profile";
+import MyArticles from "./components/Home/MyArticle";
+import BlockedArticle from "./components/Home/BlockedArticle";
 
 function App() {
   const { user } = useSelector((state: RootState) => state.user);
@@ -23,6 +25,8 @@ function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/home" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/my-article" element={<MyArticles />} />
+          <Route path="/blocked-article" element={<BlockedArticle />} />
         </Route>
       </Routes>
     </BrowserRouter>
