@@ -3,7 +3,7 @@ import { Ban, ThumbsDown, ThumbsUp, X } from "lucide-react";
 import React, { useState } from "react";
 import { disLikeArticle, likeArticle } from "../../api/ArticleApi";
 
-const ArticleModal: React.FC<any> = ({ article, onClose ,userId}) => {
+const ArticleModal: React.FC<any> = ({ article, onClose ,userId,fetchArticle}) => {
 
   const [isBlocked, setIsBlocked] = useState(false);
   const [isLiked, setIsLiked] = useState(article.likes.includes(userId));
@@ -11,9 +11,7 @@ const ArticleModal: React.FC<any> = ({ article, onClose ,userId}) => {
   const [likeCount, setLikeCount] = useState(article.likes.length);
   const [dislikeCount, setDislikeCount] = useState(article.dislikes.length);
 
-  const handleLike = async (e: any) => {
-    e.stopPropagation();
-
+  const handleLike = async () => {
     try {
       const response = await likeArticle(article.id,userId)
 
@@ -21,20 +19,20 @@ const ArticleModal: React.FC<any> = ({ article, onClose ,userId}) => {
       setDislikeCount(response.data.dislikes);
       setIsLiked(!isLiked);
       if (isDisliked) setIsDisliked(false);
+      fetchArticle()
     } catch (error) {
       console.error("Error liking article:", error);
     }
   };
 
-  const handleDislike = async (e: any) => {
-    e.stopPropagation();
-
+  const handleDislike = async () => {
     try {
       const response = await disLikeArticle(article.id,userId)
 
       setLikeCount(response.data.likes);
       setDislikeCount(response.data.dislikes);
       setIsDisliked(!isDisliked);
+      fetchArticle()
       if (isLiked) setIsLiked(false);
     } catch (error) {
       console.error("Error disliking article:", error);

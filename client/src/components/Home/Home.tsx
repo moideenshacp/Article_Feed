@@ -190,9 +190,9 @@ const Home = () => {
   
       {/* Article Modal */}
       {showModal && activeArticle && (
-        <ArticleModal article={activeArticle} onClose={handleCloseModal} userId={user?.id} />
+        <ArticleModal article={activeArticle} onClose={handleCloseModal} userId={user?.id} fetchArticle={fetchArticle}  />
       )}
-      {isModalOpen && <PublishArticleModal onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && <PublishArticleModal onClose={() => setIsModalOpen(false)} fetchArticle={fetchArticle} />}
     </div>
   );
   

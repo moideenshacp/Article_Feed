@@ -4,16 +4,18 @@ import Button from "../../shared/Button";
 import { ImagePlus, X } from "lucide-react";
 import { RootState } from "../../redux/Store";
 import { useSelector } from "react-redux";
-import { publishArticle } from "../../api/ArticleApi";
+import {  publishArticle } from "../../api/ArticleApi";
 import axios from "axios";
 import { message } from "antd";
 
 interface PublishArticleModalProps {
   onClose: () => void;
+  fetchArticle:()=>void
 }
 
 const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
   onClose,
+  fetchArticle
 }) => {
   const user = useSelector((state: RootState) => state.user.user);
 
@@ -141,6 +143,7 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
       const res = await publishArticle(articleDatas, user?.id);
       if (res.status === 201) {
         message.success("Article published sucessfully!!");
+        fetchArticle()
         onClose();
       }
       setIsSubmitting(false);
