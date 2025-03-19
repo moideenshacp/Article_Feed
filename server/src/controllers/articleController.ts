@@ -6,10 +6,8 @@ import userModel from "../models/userModel";
 export const publicArtilce = async (req: Request, res: Response) => {
   try {
     const { error, value } = articleValidationSchema.validate(req.body.articleDatas, { abortEarly: false });
-console.log("amkelaeeeeeeeeeeeeeee",req.body.articleDatas);
 
     if (error) {
-        console.log(error);
       return res.status(400).json({
         success: false,
         message: "Validation errors",
@@ -34,7 +32,6 @@ console.log("amkelaeeeeeeeeeeeeeee",req.body.articleDatas);
       article: savedArticle,
     });
   } catch (error) {
-    console.error("Error publishing article:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -45,8 +42,6 @@ console.log("amkelaeeeeeeeeeeeeeee",req.body.articleDatas);
 
 export const getArticlesByPreference = async (req: Request, res: Response) => {
     try {
-        console.log("Fetching articles based on user preference.");
-
         const { userId, publisher } = req.query;
 
         const user = await userModel.findById(userId);
@@ -77,7 +72,6 @@ export const getArticlesByPreference = async (req: Request, res: Response) => {
             articles,
         });
     } catch (error) {
-        console.error("Error fetching articles:", error);
         res.status(500).json({
             success: false,
             message: "Internal server error",
@@ -115,7 +109,6 @@ export const getArticlesByPreference = async (req: Request, res: Response) => {
         dislikes: article.dislikes.length,
       });
     } catch (error) {
-      console.error("Error liking article:", error);
       res.status(500).json({ success: false, message: "Internal server error" });
     }
   };
@@ -149,7 +142,6 @@ export const getArticlesByPreference = async (req: Request, res: Response) => {
         dislikes: article.dislikes.length,
       });
     } catch (error) {
-      console.error("Error disliking article:", error);
       res.status(500).json({ success: false, message: "Internal server error" });
     }
   };
@@ -162,9 +154,7 @@ export const getArticlesByPreference = async (req: Request, res: Response) => {
       const user = await userModel.findById(userId);
       if (!user) {
         return res.status(404).json({ success: false, message: "User not found" });
-      }
-      console.log("userindo",user);
-      
+      }      
   
       // Check if the article is already blocked
       const isBlocked = user.blockedArticles.includes(articleId);
@@ -186,7 +176,6 @@ export const getArticlesByPreference = async (req: Request, res: Response) => {
       });
   
     } catch (error) {
-      console.error("Error blocking article:", error);
       return res.status(500).json({ success: false, message: "Internal server error" });
     }
   };
@@ -211,21 +200,16 @@ export const getArticlesByPreference = async (req: Request, res: Response) => {
         isArchieved: article.isArchieved,
       });
     } catch (error) {
-      console.error("Error archieved article:", error);
       return res.status(500).json({ success: false, message: "Internal server error" });
     }
   };
 
   export const updateArticle = async (req: Request, res: Response) => {
-    try {
-        console.log("vinuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",req.body.articleDatas);
-        
+    try {        
       const { articleId } = req.body;
       const { error, value } = articleValidationSchema.validate(req.body.articleDatas, { abortEarly: false });
   
-      if (error) {
-        console.log(error,"validtion");
-        
+      if (error) {        
         return res.status(400).json({
           success: false,
           message: "Validation errors",
@@ -241,7 +225,6 @@ export const getArticlesByPreference = async (req: Request, res: Response) => {
           message: "Article not found",
         });
       }
-console.log(value,"valuessssssssssssssssssssssssssssss")
   
       article.title = value.title;
       article.category = value.category;
@@ -257,7 +240,6 @@ console.log(value,"valuessssssssssssssssssssssssssssss")
         article: updatedArticle,
       });
     } catch (error) {
-      console.error("Error updating article:", error);
       res.status(500).json({
         success: false,
         message: "Internal server error",

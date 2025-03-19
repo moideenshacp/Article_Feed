@@ -4,10 +4,12 @@ import dotenv from 'dotenv'
 import connectDb from './src/config/db'
 import authRoute from './src/routes/authRoute'
 import articleRoute from './src/routes/articleRoute'
+import cookieParser from "cookie-parser";
 dotenv.config()
 
 connectDb()
 const app = express()
+app.use(cookieParser()); 
 app.use(
     cors({
       origin: process.env.FRONT_URL,
