@@ -3,7 +3,7 @@ import { archieveArticle, blockArticle, dislikeArticle, getArticlesByPreference,
 
 const router = express.Router()
 
-router.post('/publish-article',publicArtilce)
+router.post('/publish-article', publicArtilce)
 router.get('/get-articles',getArticlesByPreference)
 router.post("/like", likeArticle);
 router.post("/dislike", dislikeArticle);
