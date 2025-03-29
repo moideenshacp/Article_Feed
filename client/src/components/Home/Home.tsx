@@ -18,7 +18,6 @@ const Home = () => {
 
   const fetchArticle = async () => {
     const res = await getArticles(user?.id);
-    console.log(res.data.articles, "ogggggggggggggggg");
 
     const formattedArticles = res.data.articles
     .filter((article: any) => !user?.blockedArticles?.includes(article._id)) // Remove blocked articles
@@ -46,8 +45,6 @@ const Home = () => {
     fetchArticle();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
-
-  console.log(articles);
 
   const handleArticleClick = (article: any) => {
     setActiveArticle(article);

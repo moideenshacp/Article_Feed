@@ -69,7 +69,6 @@ const SignUp = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true)
-    console.log("koii");
     
     const { error } = signUpSchema.validate(datas, { abortEarly: false });
     if (error) {
@@ -85,9 +84,6 @@ const SignUp = () => {
     setErrors({});
     try {
       const res = await handleSignUp(datas);
-console.log("jiii");
-
-      console.log(res, "Response from signup");
         setIsLoading(false)
       if (res?.status === 201) {
         message.success("Sign up successfully completed, Please Login now!!");

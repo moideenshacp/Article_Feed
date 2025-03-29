@@ -40,7 +40,6 @@ const SignIn = () => {
 
         }
     } catch (error: any) {
-      console.log(error);
       setError(error.message);
       setIsLoading(false)
     }

@@ -28,8 +28,6 @@ const MyArticles = () => {
     
     try {
       const res = await getArticles(user.id,true); 
-      console.log(res.data.articles, "User's articles");
-
       const formattedArticles = res.data.articles
         .filter((article: any) => article.postedBy._id === user.id)
         .map((article: any) => ({

@@ -55,10 +55,8 @@ const ArticleModal: React.FC<any> = ({
       console.error("Error disliking article:", error);
     }
   };
-  console.log(likeCount, dislikeCount, "counts------------------");
   const handleBlock = async () => {
     try {
-      console.log("int");
 
       const response = await blockArticle(article.id, user?.id);
       const isBlocked = response.data.isBlocked;
@@ -128,7 +126,7 @@ const ArticleModal: React.FC<any> = ({
               <p className="text-sm text-gray-500">Author</p>
             </div>
           </div>
-
+    
           {/* Dummy article content */}
           <div className="prose max-w-none">
             <p className="mb-4">{article.excerpt}</p>
@@ -163,7 +161,7 @@ const ArticleModal: React.FC<any> = ({
                   strokeWidth={isLiked ? 0 : 2}
                 />
 
-                <span>Like</span>
+                <span>{likeCount} Like</span>
               </button>
 
               <button
@@ -178,7 +176,7 @@ const ArticleModal: React.FC<any> = ({
                   strokeWidth={isDisliked ? 0 : 2}
                 />
 
-                <span>Dislike</span>
+                <span>{dislikeCount} Dislike</span>
               </button>
             </div>
 

@@ -152,7 +152,6 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
 
       if (article) {
         // Edit existing article
-        console.log(articleDatas,"res efit------------------------------------------");
         const res = await editArticle(articleDatas,article.id)
         
         if (res.status === 200)
